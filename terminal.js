@@ -1,4 +1,7 @@
 const commands = {
+    help() {
+        term.echo(`List of available commands: ${help}`);
+    },
     echo(a){
         this.echo(a);
     },
@@ -9,15 +12,22 @@ const commands = {
     credits() {
         return [
             '',
-            '<white>Used libraries:</white>',
-            '* <a href="https://terminal.jcubic.pl">[ jQuery Terminal ]</a>',
-            '* <a href="https://github.com/patorjk/figlet.js/">[ Figlet.js ]</a>',
-            '* <a href="https://github.com/jcubic/isomorphic-lolcat">[ Isomorphic Lolcat ]</a>',
-            '* <a href="https://jokeapi.dev/">[ Joke API ]</a>',
+            '<white>Libraries Used:</white>',
+            '* [ <a href="https://terminal.jcubic.pl" style="text-decoration:none">jQuery Terminal</a> ]',
+            '* [ <a href="https://github.com/patorjk/figlet.js/" style="text-decoration:none">Figlet.js</a> ]',
+            '* [ <a href="https://github.com/jcubic/isomorphic-lolcat" style="text-decoration:none">Isomorphic Lolcat</a> ]',
             ''
         ].join('\n');
     }
 };
+
+const formatter = new Intl.ListFormat('en', {
+    style: 'long',
+    type: 'conjunction',
+});
+
+const command_list = Object.keys(commands);
+const help = formatter.format(command_list);
 
 const fonts = ['Slant', 'Star Wars', 'ANSI Shadow', 'Standard', 'Rounded', 'Roman', 'Red Phoenix',
     'Puffy', 'Modular', 'Merlin1', 'Larry 3D 2', 'Georgia11', 'Fraktur', 'DOS Rebel', 'Def Leppard', 'Cosmike']
@@ -53,13 +63,15 @@ function ready() {
         return [
             `${ascii}`,
             '',
-            '<white>Used libraries:</white>',
-            '* <a href="https://terminal.jcubic.pl">[ jQuery Terminal ]</a>',
-            '* <a href="https://github.com/patorjk/figlet.js/">[ Figlet.js ]</a>',
-            '* <a href="https://github.com/jcubic/isomorphic-lolcat">[ Isomorphic Lolcat ]</a>',
-            '* <a href="https://jokeapi.dev/">[ Joke API ]</a>',
+            'Welcome to the free and open source web terminal - <white>Termilite</white>',
+            '<white>Termilite</white> is built using lightweight and secure JavaScript libraries,\nfocusing on responsiveness and speed.',
+            'Use <yellow>help</yellow> to check the available list of commands.',
+            '',
+            '<red>May not work as intended on mobile devices as of yet.</red>',
+            '',
+            commands.credits(),
             ''
-        ].join('\n');;
+        ].join('\n');
       }, {ansi: true}).resume();
 }
 
