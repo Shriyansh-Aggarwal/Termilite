@@ -1,15 +1,33 @@
 const commands = {
-    help() {
-        term.echo(`List of available commands: ${help}`);
+    help: function() {
+        this.echo(`List of available commands:\n\n${help}\n`);
     },
-    echo(a){
-        this.echo(a);
+    echo: function(...args){
+        this.echo(args.join(' '));
     },
-    restart(){
+    reset: function(){
         this.clear();
-        ready();
+        this.pause();
+        setTimeout(function(){
+            ready();
+        }, 200);
+        this.resume();
     },
-    credits() {
+    clear: function(){
+        this.clear();
+    },
+    whoami: function(){
+        return [
+            '',
+            `OS: ${navigator.platform}`,
+            `Language: ${navigator.language}`,
+            `Version: ${navigator.appVersion}`,
+            `Name: ${navigator.appName}`,
+            `Product: ${navigator.product}`,
+            ''
+        ].join('\n');
+    },
+    credits: function() {
         return [
             '',
             '<white>Libraries Used:</white>',
@@ -18,16 +36,19 @@ const commands = {
             '* [ <a href="https://github.com/jcubic/isomorphic-lolcat" style="text-decoration:none">Isomorphic Lolcat</a> ]',
             ''
         ].join('\n');
+    },
+    exit: function() {
+        if (confirm("Close Termilite?")) {
+            close();
+        }
     }
 };
 
-const formatter = new Intl.ListFormat('en', {
-    style: 'long',
-    type: 'conjunction',
-});
-
 const command_list = Object.keys(commands);
-const help = formatter.format(command_list);
+const formatted_list = command_list.map(cmd => {
+    return `<white class="command">${cmd}</white>`;
+});
+const help = formatted_list.join('\n');
 
 const fonts = ['Slant', 'Star Wars', 'ANSI Shadow', 'Standard', 'Rounded', 'Roman', 'Red Phoenix',
     'Puffy', 'Modular', 'Merlin1', 'Larry 3D 2', 'Georgia11', 'Fraktur', 'DOS Rebel', 'Def Leppard', 'Cosmike']
@@ -37,8 +58,26 @@ const font = fonts[fselector];
 figlet.defaults({ fontPath: 'https://unpkg.com/figlet/fonts/' });
 figlet.preloadFonts([font], ready);
 
+const re = new RegExp(`^\s*(${command_list.join('|')}) (.*)`);
+
+$.terminal.new_formatter(function(string) {
+    return string.replace(re, function(_, command, args) {
+        return `<white>${command}</white> <aqua>${args}</aqua>`;
+    });
+})
+
 const term = $('body').terminal(commands, {
-    greetings: false
+    greetings: false,
+    autocompleteMenu: true,
+    completion: command_list,
+    checkArity: false,
+    clear: false,
+    exit: false
+});
+
+term.on('click', '.command', function() {
+    const command = $(this).text();
+    term.exec(command);
 });
 
 term.pause();
@@ -64,7 +103,7 @@ function ready() {
             `${ascii}`,
             '',
             'Welcome to the free and open source web terminal - <white>Termilite</white>',
-            '<white>Termilite</white> is built using lightweight and secure JavaScript libraries,\nfocusing on responsiveness and speed.',
+            '<white>Termilite</white> is lightweight and <green>secure</green>, focusing on responsiveness and speed.',
             'Use <yellow>help</yellow> to check the available list of commands.',
             '',
             '<red>May not work as intended on mobile devices as of yet.</red>',
